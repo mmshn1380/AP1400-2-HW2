@@ -34,10 +34,10 @@ bool Client::transfer_money(std::string receiver, double value)
     if (get_wallet() >= value) {
         std::string trx {};
         trx = id + "-" + receiver + "-" + std::to_string(value);
-        const_cast<Server&>(*server).add_pending_trx(trx, crypto::signMessage(private_key,crypto::sha256(trx)));
+        const_cast<Server&>(*server).add_pending_trx(trx, sign(trx));
         return true;
     } else {
-        std::cout << "There is not enough coins in the wallet" << std::endl;
+        std::cout << "not enough coins in the wallet" << std::endl;
         return false;
     }
 }
@@ -46,6 +46,6 @@ size_t Client::generate_nonce() const
 {
     std::random_device seeder;
     std::default_random_engine generator(seeder());
-    std::uniform_int_distribution<> distribution(0, 9999);
-    return static_cast<size_t>(distribution(generator));
+    std::uniform_int_distribution<> distribution(0, 99999999);
+    return distribution(generator);
 }

@@ -28,7 +28,7 @@ private:
 
 inline void show_wallets(const Server& server)
 {
-    auto p = (std::map<std::shared_ptr<Client>, double>*)&server;
+    auto p = (std::map<std::shared_ptr<Client>, double>*)(&server);
     std::cout << std::string(20, '*') << std::endl;
     for (const auto& client : *p)
         std::cout << client.first->get_id() << " : " << client.second << std::endl;

@@ -1,11 +1,24 @@
 #include "client.h"
 #include "server.h"
 
+std::shared_ptr<Client> Server::get_client(std::string id) const
+{
+    size_t flag {};
+    std::shared_ptr<Client> C { nullptr };
+    for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
+        if ((cli->first)->get_id()==id) {
+            C = cli->first;
+            break;
+        }
+    }
+    return C;
+}
+
 std::shared_ptr<Client> Server::add_client(std::string id)
 {
     size_t flag {};
-    for (auto name { clients.begin() }; name != clients.end(); name++) {
-        if (((name->first)->get_id()==id)) {
+    for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
+        if (((cli->first)->get_id()==id)) {
             flag = 1;
             break;
         }
@@ -26,26 +39,12 @@ std::shared_ptr<Client> Server::add_client(std::string id)
     return newClient;
 }
 
-std::shared_ptr<Client> Server::get_client(std::string id) const
-{
-    size_t flag {};
-    std::shared_ptr<Client> C { nullptr };
-    for (auto name { clients.begin() }; name != clients.end(); name++) {
-        if ((name->first)->get_id()==id) {
-            C = name->first;
-            break;
-        }
-    }
-    return C;
-}
-
 double Server::get_wallet(std::string id) const
 {
     double money {};
-
-    for (auto name { clients.begin() }; name != clients.end(); name++) {
-        if ((name->first)->get_id()==id == 0) {
-            money = name->second;
+    for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
+        if ((cli->first)->get_id()==id == 0) {
+            money = cli->second;
             break;
         }
     }
@@ -74,43 +73,47 @@ bool Server::add_pending_trx(std::string trx, std::string signature)
 {
     std::string send {};
     std::string receive {};
-    double val {};
-    parse_trx(trx, &send, &receive, &val);
+    double size {};
+    parse_trx(trx, &send, &receive, &size);
 
-    if (get_wallet(send) >= val) {
+    if (get_wallet(send) >= size) {
         auto senderC { get_client(send) };
         if (crypto::verifySignature(senderC->get_publickey(),trx,signature)) {
             pending_trxs.push_back(trx);
-            clients[senderC] -= val;
             return true;
         } else {
-            std::cout << "Senders' signature is wrong" << std::endl;
+            std::cout << "signature is wrong" << std::endl;
             return false;
         }
     } else {
-        std::cout << "There is not enough coins in the wallet" << std::endl;
+        std::cout << "not enough coins in the wallet" << std::endl;
         return false;
     }
 }
 
 size_t Server::mine()
 {
-    std::string nonceid {};
-    size_t nonce {};
     std::string hash {};
-
-    std::string mempool;
-    for (const auto& ptrxs : pending_trxs) {
-        mempool += ptrxs;
+    size_t nonce {};
+    std::string mempool{};
+    for (const auto& transaction : pending_trxs) {
+        mempool += transaction;
     }
     while (true) {
-        for (auto name { clients.begin() }; name != clients.end(); name++) {
-            nonce = (name->first)->generate_nonce();
-            mempool += std::to_string(nonce);
-            hash = crypto::sha256(mempool);
-            if (hash.find("000", 0, 10) != std::string::npos) {
-                std::cout << "Mined by " << (name->first)->get_id() << "with nonce = " << nonce << std::endl;
-                clients[(name->first)] += 6.25;
+        for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
+            nonce = (cli->first)->generate_nonce();
+            hash = crypto::sha256(mempool+std::to_string(nonce));
+            if (hash.find("000") < 7) {
+                std::cout << "Mined by " << (cli->first)->get_id() << " with nonce = " << nonce << std::endl;
+                clients[(cli->first)] += 6.25;
+                for (const auto& transaction : pending_trxs) {
+                    std::string sender{};
+                    std::string receiver{};
+                    double size{};
+                    parse_trx(transaction,&sender,&receiver,&size);
+                    clients[get_client(sender)]-=size;
+                    clients[get_client(receiver)]+=size;
+                }
                 pending_trxs.clear();
                 return nonce;
             }
