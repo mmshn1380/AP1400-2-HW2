@@ -3,15 +3,12 @@
 
 std::shared_ptr<Client> Server::get_client(std::string id) const
 {
-    size_t flag {};
-    std::shared_ptr<Client> C { nullptr };
     for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
         if ((cli->first)->get_id()==id) {
-            C = cli->first;
-            break;
+            return cli->first;
         }
     }
-    return C;
+    return nullptr;
 }
 
 std::shared_ptr<Client> Server::add_client(std::string id)
@@ -41,14 +38,12 @@ std::shared_ptr<Client> Server::add_client(std::string id)
 
 double Server::get_wallet(std::string id) const
 {
-    double money {};
     for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
         if ((cli->first)->get_id()==id == 0) {
-            money = cli->second;
-            break;
+            return cli->second;
         }
     }
-    return money;
+    return 0;
 }
 
 bool Server::parse_trx(std::string trx, std::string* sender, std::string* receiver, double* value) const
