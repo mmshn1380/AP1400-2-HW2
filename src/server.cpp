@@ -39,7 +39,7 @@ std::shared_ptr<Client> Server::add_client(std::string id)
 double Server::get_wallet(std::string id) const
 {
     for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
-        if ((cli->first)->get_id()==id == 0) {
+        if ((cli->first)->get_id()==id) {
             return cli->second;
         }
     }
