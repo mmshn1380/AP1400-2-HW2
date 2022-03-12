@@ -13,26 +13,20 @@ std::shared_ptr<Client> Server::get_client(std::string id) const
 
 std::shared_ptr<Client> Server::add_client(std::string id)
 {
-    size_t flag {};
     for (auto cli { clients.begin() }; cli != clients.end(); cli++) {
         if (((cli->first)->get_id()==id)) {
-            flag = 1;
-            break;
+            std::string num {};
+            std::random_device seeder;
+            std::default_random_engine generator(seeder());
+            std::uniform_int_distribution<> distribution(0, 9999);
+            num = std::to_string(distribution(generator));
+            std::shared_ptr<Client> newClient{std::make_shared<Client>(id + num, *this)};
+            clients[newClient] = 5.0;
+            return newClient;
         }
     }
-
-    std::shared_ptr<Client> newClient { nullptr };
-    if (flag == 1) {
-        std::string num {};
-        std::random_device seeder;
-        std::default_random_engine generator(seeder());
-        std::uniform_int_distribution<> distribution(0, 9999);
-        num = std::to_string(distribution(generator));
-        newClient = std::make_shared<Client>(id + num, *this);
-    } else {
-        newClient = std::make_shared<Client>(id, *this);
-    }
-    clients[newClient] = 3.0;
+    std::shared_ptr<Client> newClient { std::make_shared<Client>(id, *this) };
+    clients[newClient] = 5.0;
     return newClient;
 }
 
