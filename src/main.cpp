@@ -16,17 +16,7 @@ int main(int argc, char **argv)
 {
     if (false) // make false to run unit-tests
     {
-        Server s;
-        s.add_client("ali");
-        s.add_client("sina");
-        auto c=s.get_client("ali");
-        c.get()->transfer_money("sina",2);
-        std::cout<<s.get_wallet("sina")<<std::endl;
-        std::cout<<s.get_wallet("ali")<<std::endl;
-        show_pending_transactions();
-        s.mine();
-        std::cout<<s.get_wallet("sina")<<std::endl;
-        std::cout<<s.get_wallet("ali")<<std::endl;
+
     }
     else
     {
