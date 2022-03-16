@@ -32,6 +32,10 @@ std::string Client::sign(std::string txt) const
 bool Client::transfer_money(std::string receiver, double value)
 {
     if (get_wallet() >= value) {
+        if(const_cast<Server&>(*server).get_client(receiver)==nullptr){
+            std::cout << "receiver client not found" << std::endl;
+            return false;
+        }
         std::string trx {};
         trx = id + "-" + receiver + "-" + std::to_string(value);
         const_cast<Server&>(*server).add_pending_trx(trx, sign(trx));

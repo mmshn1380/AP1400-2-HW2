@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv)
 {
-    if (true) // make false to run unit-tests
+    if (false) // make false to run unit-tests
     {
         Server s;
         s.add_client("ali");

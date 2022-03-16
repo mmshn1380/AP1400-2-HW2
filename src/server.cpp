@@ -40,7 +40,7 @@ double Server::get_wallet(std::string id) const
     throw std::runtime_error("client not found");
 }
 
-bool Server::parse_trx(std::string trx, std::string* sender, std::string* receiver, double* value) const
+bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiver, double& value)
 {
     std::stringstream str(trx);
     std::string segment;
@@ -52,9 +52,9 @@ bool Server::parse_trx(std::string trx, std::string* sender, std::string* receiv
     if(seglist.size()!=3){
         throw std::runtime_error("trx is not valid");
     }
-    *sender = seglist[0];
-    *receiver = seglist[1];
-    *value = stod(seglist[2]);
+    sender = seglist[0];
+    receiver = seglist[1];
+    value = stod(seglist[2]);
     return true;
 }
 
@@ -63,7 +63,7 @@ bool Server::add_pending_trx(std::string trx, std::string signature)
     std::string send {};
     std::string receive {};
     double size {};
-    parse_trx(trx, &send, &receive, &size);
+    parse_trx(trx, send, receive, size);
 
     if (get_wallet(send) >= size) {
         auto senderC { get_client(send) };
@@ -99,7 +99,7 @@ size_t Server::mine()
                     std::string sender{};
                     std::string receiver{};
                     double size{};
-                    parse_trx(transaction,&sender,&receiver,&size);
+                    parse_trx(transaction,sender,receiver,size);
                     clients[get_client(sender)]-=size;
                     clients[get_client(receiver)]+=size;
                 }
