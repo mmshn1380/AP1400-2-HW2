@@ -37,7 +37,7 @@ double Server::get_wallet(std::string id) const
             return cli->second;
         }
     }
-    return 0;
+    throw std::runtime_error("client not found");
 }
 
 bool Server::parse_trx(std::string trx, std::string* sender, std::string* receiver, double* value) const
@@ -50,7 +50,7 @@ bool Server::parse_trx(std::string trx, std::string* sender, std::string* receiv
         seglist.push_back(segment);
     }
     if(seglist.size()!=3){
-        throw std::runtime_error("String is not standard");
+        throw std::runtime_error("trx is not valid");
     }
     *sender = seglist[0];
     *receiver = seglist[1];
